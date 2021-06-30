@@ -1,0 +1,24 @@
+{
+  "name": "coding-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "ethers": "^5.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ibnuhabibie/rectest.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ibnuhabibie/rectest/issues"
+  },
+  "homepage": "https://github.com/ibnuhabibie/rectest#readme"
+}
