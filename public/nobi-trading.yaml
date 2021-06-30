@@ -1,0 +1,350 @@
+openapi: "3.0.0"
+servers:
+  - url: https://sb-api.usenobi.com/v1
+    description: Sandbox server
+  - url: https://api.usenobi.com/v1
+    description: Production server
+info:
+  version: 1.0.0
+  title: Nobi Trading
+  license:
+    name: MIT
+  description: >
+    # Introduction
+      
+      This API Specification was made for recruitment test at Nobi. This document cover enpoints that used at Nobi application
+      for trading system; Buy/Sel crypto coin specifically for BTC/IDR and USDT/IDR.
+      
+      ## API Categories
+      
+      The APIs are divided in 3 separate categories, to make things easy to discover. 
+      Below is how these APIs are arranged.
+
+        - Wallet
+        - Coin
+        - Trade
+
+      # Authentication
+
+      Nobi Trading used OAuth2 authentication. OAuth2 - an open protocol to allow secure authorization in a simple
+      and standard method from web, mobile and desktop applications.
+tags:
+  - name: wallet
+    description: Everything about your wallet
+  - name: coin
+    description: Covering data needed for charting and information about coin
+  - name: trade
+    description: Everything about buy/sell coin
+paths:
+  "/wallet/{userId}/{coinSymbol}":
+    get:
+      tags:
+        - wallet
+      summary: Get Wallet by UserID
+      description: Returns a wallet that user had
+      operationId: getWalletByUserID
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example:
+            - 1
+            - 2
+        - name: coinSymbol
+          in: path
+          description: Coin Symbol - if empty will list all wallet user had
+          required: true
+          schema:
+            type: string
+          example:
+            - btc_idr
+            - usdt_idr
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletUser"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/WalletUser"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: User not found
+      security:
+        - nobi_auth: []
+  "/coins/{coinSymbol}":
+    get:
+      tags:
+        - coin
+      summary: Get Coin by Symbol
+      description: Returns a coin information
+      operationId: getCoinBySymbol
+      parameters:
+        - name: coinSymbol
+          in: path
+          description: Coin Symbol
+          required: true
+          schema:
+            type: string
+          example:
+            - btc_idr
+            - usdt_idr
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Coin"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/Coin"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Coin not found
+      security:
+        - nobi_auth: []
+  "/coins/{coinSymbol}/chart/{timeFrame}":
+    get:
+      tags:
+        - coin
+      summary: Get Data Chart by Symbol
+      description: Returns a coin data chart information
+      operationId: getDataChartCoinBySymbol
+      parameters:
+        - name: coinSymbol
+          in: path
+          description: Coin Symbol
+          required: true
+          schema:
+            type: string
+          example:
+            - btc_idr
+            - usdt_idr
+        - name: timeFrame
+          in: path
+          description: Time Frame for each tick
+          required: true
+          schema:
+            type: string
+          example:
+            - 8h
+            - 24h
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoinDataChart"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/CoinDataChart"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Coin not found
+      security:
+        - nobi_auth: []
+  "/trade/{tradeId}":
+    get:
+      tags:
+        - trade
+      summary: Get Trading Detail
+      description: Returns a trading detail information
+      operationId: getTradingDetail
+      parameters:
+        - name: tradeId
+          in: path
+          description: Trading ID
+          required: true
+          schema:
+            type: string
+          example:
+            - 8asd8casqwe45mv
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trade"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/Trade"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Trade Information not found
+      security:
+        - nobi_auth: []
+  "/trade":
+    post:
+      tags:
+        - trade
+      summary: Create New Order
+      description: Used to open new order for Buy/Sell.
+      operationId: trade
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                type:
+                  description: transaction type
+                  type: string
+                  example:
+                    - buy
+                    - sell
+                amount:
+                  description: amount of transaction to buy/sell
+                  type: integer
+                  example: 132400
+                pair:
+                  description: coin symbol
+                  type: string
+                  example:
+                    - btc_idr
+                    - usdt_idr
+                
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+    Wallet:
+      type: object
+      properties:
+        coinSymbol:
+          type: string
+          example: btc_idr
+        address:
+          type: string
+          example: 1GE7CxpQT7zMRrdA5s6U53sHuuBbEijkYc
+        balance:
+          type: integer
+          example: 150252
+        balanceHold:
+          type: integer
+          example: 225357
+        userId:
+          type: integer
+          example: 1
+        type:
+          type: string
+          example: Wallet Trading
+    WalletUser:
+      type: object
+      properties:
+        serverTime:
+          type: string
+          format: date-time
+        wallets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Wallet'
+    Coin:
+      type: object
+      properties:
+        coinSymbol:
+          type: string
+          example: btc_idr
+        name:
+          type: string
+          example: BTC/IDR
+        logo:
+          type: string
+          example: 'https://cdn.usenobi.com/assets/logo/btc_idr.svg'
+        minOrder:
+          type: integer
+          example: 152000
+        description:
+          type: string
+    CoinDataChart:
+      type: object
+      properties:
+        marketValue:
+          type: integer
+          example: 102345
+        chart:
+          type: array
+          items:
+            properties:
+              c:
+                type: integer
+                example: 145012000
+              h:
+                type: integer
+                example: 145012000
+              l:
+                type: integer
+                example: 145012000
+              o:
+                type: integer
+                example: 145012000
+    Trade:
+      type: object
+      properties:
+        wallet:
+          type: object
+          $ref: '#/components/schemas/Wallet'
+        serviceFee:
+          type: integer
+        pair:
+          type: string
+          example: btc_idr
+        price:
+          type: integer
+          example: 431988
+        type:
+          type: string
+          example: buy
+        receiveAmount:
+          type: integer
+          example: 431988
+        unfilledAmount:
+          type: integer
+          example: 0
+        description:
+          type: string
+          example: 'BUY - transaction made on margin trading'
+        createdAt:
+          type: string
+          format: date-time
+        successAt:
+          type: string
+          format: date-time
+  securitySchemes:
+    nobi_auth:
+      description: |
+        Get access to data while protecting your account credentials.
+        OAuth2 is also a safer and more secure way to give you access.
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: "http://api.usenobi.com/v1/oauth/callback"
+          scopes:
+            - trade

@@ -1,0 +1,85 @@
+Project NobiTrading {
+  database_type: 'Mysql'
+  Note: '''
+    ## Database Schema  
+    This schema was created for recruitment test from Nobi.  
+    ### Features
+    This data specification was made only for Buy/Sell Trading at Nobi Application. Also we include Cache DB that store some values that accessed frequently.  
+    ### Nobi
+    NOBI is Indonesia’s leading cryptocurrency investment platform. Nobi started in 2018 with a simple idea that everyone should have easy access to own & grow their crypto.  
+    ### Cache DB
+    - btcidr_chart_8h
+    - btcidr_chart_24h
+    - btcidr_chart_1w
+    - btcidr_chart_3m
+    - btcidr_chart_6m
+    - btcidr_chart_1y
+    - usdtidr_chart_8h
+    - usdtidr_chart_24h
+    - usdtidr_chart_1w
+    - usdtidr_chart_3m
+    - usdtidr_chart_6m
+    - usdtidr_chart_1y
+    - btcidr_market_value
+    - usdtidr_market_value
+  '''
+}
+
+Table users {
+  id int [pk, increment]
+  fullName varchar
+  password varchar
+  salt varchar
+  profilePic varchar
+  isVerified boolean [default: `false`]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp
+  note: "table 'users' contains user information"
+}
+Table coins {
+  id int [pk]
+  symbol varchar
+  name varchar
+  logo varchar
+  minOrder double
+  description varchar
+  createdAt timestamp [default: 'now()']
+  note: "table 'coins' contains coin information"
+}
+Table wallets {
+  id int [pk]
+  userId int [ref: > users.id]
+  type varchar [note: 'We can separate wallet by type. example: Wallet for Margin Trading & P2P Trading.']
+  address varchar
+  coinId int [ref: - coins.id]
+  balance double
+  balanceHold double
+  createdAt timestamp [default: `now()`]
+  note: "table 'wallets' contains wallets information per coin and type"
+}
+Table transactions {
+  id int [pk]
+  userId int [ref: > users.id]
+  trxId varchar [note: 'created by Indodax']
+  walletId int [ref: - wallets.id]
+  serviceFee double
+  pair varchar
+  price double
+  type transactionType
+  receiveAmmount double [note: 'Used for received amount from transaction']
+  unfilledAmount double [note: 'Used for any unfilled amount from transaction']
+  description varchar
+  createdAt timestamp [default: `now()`]
+  sucessAt timestamp
+  note: "table 'transactions' contains every transactions log made on the system"
+
+  Indexes {
+    (userId, walletId)
+    trxId [unique]
+  }
+}
+
+enum transactionType {
+  buy
+  sell
+}
